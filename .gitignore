@@ -1,0 +1,46 @@
+# Go build artifacts
+/bin/
+/obj/
+/vendor/
+
+# Go-specific IDE and editor files
+.idea/
+/.vscode/
+/*.swp
+*.swo
+
+# Go test and coverage output
+*.test
+*.out
+coverage.out
+
+# Node.js / Vue build artifacts
+node_modules/
+/dist/
+/public/
+
+# Vue / Node.js IDE files
+.vscode/
+/.idea/
+
+# Log files
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Dependency directories for Go and Node.js
+go.sum
+go.mod
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.bak
+*.tmp
