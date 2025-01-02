@@ -1,0 +1,1 @@
+<h1>gin-vue-template前端</h1>
