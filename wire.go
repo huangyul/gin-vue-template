@@ -1,4 +1,5 @@
-//go:inject wireinject
+//go:build wireinject
+
 package main
 
 import (
