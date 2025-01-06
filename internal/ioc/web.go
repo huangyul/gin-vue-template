@@ -9,7 +9,7 @@ func InitServer(mdls []gin.HandlerFunc, hdls []web.Handler) *gin.Engine {
 	server := gin.Default()
 	server.Use(mdls...)
 	for _, hdl := range hdls {
-		hdl.Register(server)
+		hdl.RegisterRoutes(server)
 	}
 	return server
 }

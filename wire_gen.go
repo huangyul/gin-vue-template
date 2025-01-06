@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"github.com/huangyul/gin-vue-template/internal/ioc"
+	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
 	"github.com/huangyul/gin-vue-template/internal/repository"
 	"github.com/huangyul/gin-vue-template/internal/repository/dao"
 	"github.com/huangyul/gin-vue-template/internal/service"
@@ -24,7 +25,8 @@ func InitServer() *gin.Engine {
 	userDao := dao.NewUserDao(db)
 	userRepository := repository.NewUserRepository(userDao)
 	userService := service.NewUserService(userRepository)
-	userHandler := web.NewUserHandler(userService)
+	handler := jwt.NewHandler()
+	userHandler := web.NewUserHandler(userService, handler)
 	v2 := ioc.InitWebHandler(userHandler)
 	engine := ioc.InitServer(v, v2)
 	return engine
@@ -32,4 +34,4 @@ func InitServer() *gin.Engine {
 
 // wire.go:
 
-var UserSet = wire.NewSet(dao.NewUserDao, repository.NewUserRepository, service.NewUserService, web.NewUserHandler)
+var UserSet = wire.NewSet(jwt.NewHandler, dao.NewUserDao, repository.NewUserRepository, service.NewUserService, web.NewUserHandler)

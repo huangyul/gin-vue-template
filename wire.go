@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
 	"github.com/huangyul/gin-vue-template/internal/ioc"
+	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
 	"github.com/huangyul/gin-vue-template/internal/repository"
 	"github.com/huangyul/gin-vue-template/internal/repository/dao"
 	"github.com/huangyul/gin-vue-template/internal/service"
@@ -13,6 +14,7 @@ import (
 )
 
 var UserSet = wire.NewSet(
+	jwt.NewHandler,
 	dao.NewUserDao,
 	repository.NewUserRepository,
 	service.NewUserService,
