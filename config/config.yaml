@@ -1,2 +1,11 @@
 server:
   port: 8088
+
+db:
+  host: '127.0.0.1'
+  port: 13326
+  username: 'root'
+  password: 'root'
+  database: 'gin_vue_db'
+
+test: "test"

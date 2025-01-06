@@ -6,8 +6,9 @@ import (
 )
 
 func main() {
-	s := InitServer()
 	initViper()
+	s := InitServer()
+
 	s.Run(fmt.Sprintf("127.0.0.1:%d", viper.GetInt("server.port")))
 }
 

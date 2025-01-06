@@ -8,13 +8,28 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/wire"
 	"github.com/huangyul/gin-vue-template/internal/ioc"
+	"github.com/huangyul/gin-vue-template/internal/repository"
+	"github.com/huangyul/gin-vue-template/internal/repository/dao"
+	"github.com/huangyul/gin-vue-template/internal/service"
+	"github.com/huangyul/gin-vue-template/internal/web"
 )
 
 // Injectors from wire.go:
 
 func InitServer() *gin.Engine {
 	v := ioc.InitWebMiddleware()
-	engine := ioc.InitServer(v)
+	db := ioc.InitDB()
+	userDao := dao.NewUserDao(db)
+	userRepository := repository.NewUserRepository(userDao)
+	userService := service.NewUserService(userRepository)
+	userHandler := web.NewUserHandler(userService)
+	v2 := ioc.InitWebHandler(userHandler)
+	engine := ioc.InitServer(v, v2)
 	return engine
 }
+
+// wire.go:
+
+var UserSet = wire.NewSet(dao.NewUserDao, repository.NewUserRepository, service.NewUserService, web.NewUserHandler)
