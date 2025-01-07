@@ -28,6 +28,8 @@ func InitServer() *gin.Engine {
 
 		UserSet,
 
+		web.NewRouterHandler,
+
 		ioc.InitServer,
 		ioc.InitWebHandler,
 		ioc.InitWebMiddleware,

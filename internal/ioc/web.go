@@ -15,8 +15,8 @@ func InitServer(mdls []gin.HandlerFunc, hdls []web.Handler) *gin.Engine {
 	return server
 }
 
-func InitWebHandler(uHdl *web.UserHandler) []web.Handler {
-	return []web.Handler{uHdl}
+func InitWebHandler(uHdl *web.UserHandler, routerHdl *web.RouterHandler) []web.Handler {
+	return []web.Handler{uHdl, routerHdl}
 }
 
 func InitWebMiddleware(jwtHdl *jwt.Handler) []gin.HandlerFunc {

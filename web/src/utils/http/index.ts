@@ -78,37 +78,38 @@ class PureHttp {
         return whiteList.some(url => config.url.endsWith(url))
           ? config
           : new Promise(resolve => {
-              const data = getToken();
-              if (data) {
-                const now = new Date().getTime();
-                const expired = parseInt(data.expires) - now <= 0;
-                if (expired) {
-                  if (!PureHttp.isRefreshing) {
-                    PureHttp.isRefreshing = true;
-                    // token过期刷新
-                    useUserStoreHook()
-                      .handRefreshToken({ refreshToken: data.refreshToken })
-                      .then(res => {
-                        const token = res.data.accessToken;
-                        config.headers["Authorization"] = formatToken(token);
-                        PureHttp.requests.forEach(cb => cb(token));
-                        PureHttp.requests = [];
-                      })
-                      .finally(() => {
-                        PureHttp.isRefreshing = false;
-                      });
-                  }
-                  resolve(PureHttp.retryOriginalRequest(config));
-                } else {
-                  config.headers["Authorization"] = formatToken(
-                    data.accessToken
-                  );
-                  resolve(config);
+            const data = getToken();
+            debugger;
+            if (data) {
+              const now = new Date().getTime();
+              const expired = parseInt(data.expires) - now <= 0;
+              if (expired) {
+                if (!PureHttp.isRefreshing) {
+                  PureHttp.isRefreshing = true;
+                  // token过期刷新
+                  useUserStoreHook()
+                    .handRefreshToken({ refreshToken: data.refreshToken })
+                    .then(res => {
+                      const token = res.data.accessToken;
+                      config.headers["Authorization"] = formatToken(token);
+                      PureHttp.requests.forEach(cb => cb(token));
+                      PureHttp.requests = [];
+                    })
+                    .finally(() => {
+                      PureHttp.isRefreshing = false;
+                    });
                 }
+                resolve(PureHttp.retryOriginalRequest(config));
               } else {
+                config.headers["Authorization"] = formatToken(
+                  data.accessToken
+                );
                 resolve(config);
               }
-            });
+            } else {
+              resolve(config);
+            }
+          });
       },
       error => {
         return Promise.reject(error);

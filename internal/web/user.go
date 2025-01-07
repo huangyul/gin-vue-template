@@ -7,6 +7,7 @@ import (
 	"github.com/huangyul/gin-vue-template/internal/service"
 	"golang.org/x/sync/errgroup"
 	"net/http"
+	"time"
 )
 
 var (
@@ -34,6 +35,7 @@ func (h *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug := server.Group("/user")
 	ug.POST("/login", h.Login)
 	ug.POST("/register", h.Register)
+	ug.POST("/refresh-token", h.RefreshToken)
 }
 
 func (h *UserHandler) Login(ctx *gin.Context) {
@@ -68,9 +70,21 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{
-		"token":        token,
-		"refreshToken": refreshToken,
+	type LoginResp struct {
+		Avatar       string   `json:"avatar"`       // 头像
+		Username     string   `json:"username"`     // 用户名
+		Nickname     string   `json:"nickname"`     // 昵称
+		Roles        []string `json:"roles"`        // 当前登录用户的角色
+		Permissions  []string `json:"permissions"`  // 按钮级别权限
+		AccessToken  string   `json:"accessToken"`  // `token`
+		RefreshToken string   `json:"refreshToken"` // 用于调用刷新`accessToken`的接口时所需的`token`
+		Expires      string   `json:"expires"`      // `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'）
+	}
+	WriteSuccessResponse(ctx, LoginResp{
+		Username:     user.Username,
+		AccessToken:  token,
+		RefreshToken: refreshToken,
+		Expires:      time.Now().Add(time.Hour * 24 * 2).Format("2006/01/02 15:04:05"),
 	})
 }
 
@@ -104,4 +118,26 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"user": req.Username})
+}
+
+func (h *UserHandler) RefreshToken(ctx *gin.Context) {
+	type req struct {
+		RefreshToken string `json:"refreshToken" binding:"required"`
+	}
+	var r req
+	if err := ctx.ShouldBind(&r); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	token, err := h.jwt.Refresh(r.RefreshToken)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	type RefreshTokenResp struct {
+		AccessToken string `json:"accessToken"`
+	}
+	WriteSuccessResponse(ctx, RefreshTokenResp{
+		AccessToken: token,
+	})
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
 	"net/http"
+	"strings"
 )
 
 type LoginMiddlewareBuild struct {
@@ -32,7 +33,13 @@ func (l *LoginMiddlewareBuild) Build() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		claim, err := l.jwtHdl.ParseToken(tokenString)
+		segs := strings.Split(tokenString, " ")
+		if len(segs) != 2 {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		claim, err := l.jwtHdl.ParseToken(segs[1])
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return

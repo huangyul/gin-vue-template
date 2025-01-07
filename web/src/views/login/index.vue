@@ -2,7 +2,6 @@
 import Motion from "./utils/motion";
 import { useRouter } from "vue-router";
 import { message } from "@/utils/message";
-import { loginRules } from "./utils/rule";
 import { useNav } from "@/layout/hooks/useNav";
 import type { FormInstance } from "element-plus";
 import { useLayout } from "@/layout/hooks/useLayout";
@@ -34,7 +33,7 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "admin123"
+  password: "adminadmin"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -43,9 +42,12 @@ const onLogin = async (formEl: FormInstance | undefined) => {
     if (valid) {
       loading.value = true;
       useUserStoreHook()
-        .loginByUsername({ username: ruleForm.username, password: "admin123" })
+        .loginByUsername({
+          username: ruleForm.username,
+          password: "adminadmin"
+        })
         .then(res => {
-          if (res.success) {
+          if (res.code === 0) {
             // 获取后端路由
             return initRouter().then(() => {
               router.push(getTopMenu(true).path).then(() => {
@@ -101,12 +103,7 @@ onBeforeUnmount(() => {
             <h2 class="outline-none">{{ title }}</h2>
           </Motion>
 
-          <el-form
-            ref="ruleFormRef"
-            :model="ruleForm"
-            :rules="loginRules"
-            size="large"
-          >
+          <el-form ref="ruleFormRef" :model="ruleForm" size="large">
             <Motion :delay="100">
               <el-form-item
                 :rules="[
