@@ -81,6 +81,10 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		Expires      string   `json:"expires"`      // `accessToken`的过期时间（格式'xxxx/xx/xx xx:xx:xx'）
 	}
 	WriteSuccessResponse(ctx, LoginResp{
+		Roles:        []string{"admin"},
+		Permissions:  []string{"*:*:*"},
+		Nickname:     "小红",
+		Avatar:       "https://avatars.githubusercontent.com/u/44761321",
 		Username:     user.Username,
 		AccessToken:  token,
 		RefreshToken: refreshToken,
