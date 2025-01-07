@@ -2,6 +2,7 @@ package ioc
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
 	"github.com/huangyul/gin-vue-template/internal/web"
 )
 
@@ -18,6 +19,9 @@ func InitWebHandler(uHdl *web.UserHandler) []web.Handler {
 	return []web.Handler{uHdl}
 }
 
-func InitWebMiddleware() []gin.HandlerFunc {
-	return []gin.HandlerFunc{}
+func InitWebMiddleware(jwtHdl *jwt.Handler) []gin.HandlerFunc {
+	return []gin.HandlerFunc{
+		// login
+		web.NewLoginMiddlewareBuild(jwtHdl).AddWhiteList("/user/login", "/user/refresh-token").Build(),
+	}
 }

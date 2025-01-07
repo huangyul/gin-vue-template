@@ -20,12 +20,12 @@ import (
 // Injectors from wire.go:
 
 func InitServer() *gin.Engine {
-	v := ioc.InitWebMiddleware()
+	handler := jwt.NewHandler()
+	v := ioc.InitWebMiddleware(handler)
 	db := ioc.InitDB()
 	userDao := dao.NewUserDao(db)
 	userRepository := repository.NewUserRepository(userDao)
 	userService := service.NewUserService(userRepository)
-	handler := jwt.NewHandler()
 	userHandler := web.NewUserHandler(userService, handler)
 	v2 := ioc.InitWebHandler(userHandler)
 	engine := ioc.InitServer(v, v2)
