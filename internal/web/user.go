@@ -3,10 +3,12 @@ package web
 import (
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
+	"github.com/huangyul/gin-vue-template/internal/dto"
 	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
 	"github.com/huangyul/gin-vue-template/internal/service"
 	"golang.org/x/sync/errgroup"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -36,6 +38,10 @@ func (h *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug.POST("/login", h.Login)
 	ug.POST("/register", h.Register)
 	ug.POST("/refresh-token", h.RefreshToken)
+	ug.POST("/list", h.List)
+	ug.GET("/Detail/:id", h.Detail)
+	ug.GET("/delete/:id", h.Delete)
+	ug.POST("/update", h.Update)
 }
 
 func (h *UserHandler) Login(ctx *gin.Context) {
@@ -144,4 +150,84 @@ func (h *UserHandler) RefreshToken(ctx *gin.Context) {
 	WriteSuccessResponse(ctx, RefreshTokenResp{
 		AccessToken: token,
 	})
+}
+
+func (h *UserHandler) List(ctx *gin.Context) {
+	var r dto.UserListQueryParams
+	if err := ctx.ShouldBind(&r); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	us, count, err := h.svc.List(ctx, r)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	var users []dto.UserResp
+	for _, u := range us {
+		users = append(users, dto.UserResp{
+			Username:  u.Username,
+			Nickname:  u.Username,
+			ID:        u.ID,
+			CreatedAt: u.CreatedAt.Format(time.DateOnly),
+		})
+	}
+	WriteSuccessResponse(ctx, dto.UserListResp{
+		Data:  users,
+		Total: count,
+	})
+
+}
+
+func (h *UserHandler) Detail(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "非法id"})
+		return
+	}
+	u, err := h.svc.GetByID(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	WriteSuccessResponse(ctx, dto.UserResp{
+		Username:  u.Username,
+		Nickname:  u.Username,
+		ID:        u.ID,
+		CreatedAt: u.CreatedAt.Format(time.DateOnly),
+	})
+}
+
+func (h *UserHandler) Delete(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.svc.DeleteByID(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	WriteSuccess(ctx)
+}
+
+func (h *UserHandler) Update(ctx *gin.Context) {
+	type req struct {
+		ID       int64  `json:"id" binding:"required"`
+		Nickname string `json:"nickname" binding:"required"`
+	}
+	var r req
+	if err := ctx.ShouldBind(&r); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.svc.Update(ctx, r.ID, r.Nickname)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	WriteSuccess(ctx)
 }

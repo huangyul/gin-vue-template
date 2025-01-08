@@ -73,6 +73,25 @@ var permissionRouter = Route{
 	},
 }
 
+var userRouter = Route{
+	Path: "/user",
+	Meta: Meta{
+		Title: "用户管理",
+		Icon:  "ep:user",
+		Rank:  20,
+	},
+	Children: []Route{
+		{
+			Path: "/user/page/list",
+			Name: "UserPageList",
+			Meta: Meta{
+				Title: "用户管理",
+				Roles: []string{"admin", "common"},
+			},
+		},
+	},
+}
+
 type RouterHandler struct{}
 
 func NewRouterHandler() *RouterHandler {
@@ -86,6 +105,6 @@ func (r *RouterHandler) RegisterRoutes(s *gin.Engine) {
 func (r *RouterHandler) GetRoutes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    []Route{permissionRouter},
+		"data":    []Route{permissionRouter, userRouter},
 	})
 }

@@ -8,4 +8,7 @@ var (
 	BadRequest          = &Errno{Code: 10002, Message: "Bad request"}
 
 	// User errors
+
+	UsernameConflict = &Errno{Code: 20001, Message: "username is already taken"}
+	UserNotFound     = &Errno{Code: 20001, Message: "user not found"}
 )

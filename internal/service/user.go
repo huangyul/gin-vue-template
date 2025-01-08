@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"github.com/gin-gonic/gin"
 	"github.com/huangyul/gin-vue-template/internal/domain"
+	"github.com/huangyul/gin-vue-template/internal/dto"
 	"github.com/huangyul/gin-vue-template/internal/repository"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -10,10 +12,30 @@ import (
 type UserService interface {
 	Register(ctx context.Context, username string, password string) error
 	Login(ctx context.Context, username string, password string) (domain.User, error)
+	List(ctx *gin.Context, params dto.UserListQueryParams) ([]domain.User, int64, error)
+	GetByID(ctx context.Context, id int64) (domain.User, error)
+	Update(ctx context.Context, id int64, nickname string) error
+	DeleteByID(ctx context.Context, id int64) error
 }
 
 type UserServiceImpl struct {
 	repo repository.UserRepository
+}
+
+func (u *UserServiceImpl) GetByID(ctx context.Context, id int64) (domain.User, error) {
+	return u.repo.FindByID(ctx, id)
+}
+
+func (u *UserServiceImpl) Update(ctx context.Context, id int64, nickname string) error {
+	return u.repo.UpdateByID(ctx, id, nickname)
+}
+
+func (u *UserServiceImpl) DeleteByID(ctx context.Context, id int64) error {
+	return u.repo.DeleteByID(ctx, id)
+}
+
+func (u *UserServiceImpl) List(ctx *gin.Context, params dto.UserListQueryParams) ([]domain.User, int64, error) {
+	return u.repo.GetList(ctx, params)
 }
 
 func (u *UserServiceImpl) Login(ctx context.Context, username string, password string) (domain.User, error) {
