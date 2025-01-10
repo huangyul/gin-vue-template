@@ -2,11 +2,33 @@
   <el-dialog v-model="dialogVisible" :title width="500">
     <el-form ref="formRef" :model="form" :rules>
       <el-form-item label="用户名" label-width="140px" prop="username">
-        <el-input v-model="form.username" autocomplete="off" />
+        <el-input
+          v-model="form.username"
+          :disabled="type == 'edit'"
+          autocomplete="off"
+        />
       </el-form-item>
       <el-form-item label="密码" label-width="140px" prop="password">
-        <el-input v-model="form.password" type="password" autocomplete="off" />
+        <el-input
+          v-model="form.password"
+          :disabled="type == 'edit'"
+          type="password"
+          autocomplete="off"
+        />
       </el-form-item>
+      <el-form-item
+        v-if="type == 'create'"
+        label="确认密码"
+        label-width="140px"
+        prop="confirmPassword"
+      >
+        <el-input
+          v-model="form.confirmPassword"
+          type="password"
+          autocomplete="off"
+        />
+      </el-form-item>
+
       <el-form-item label="昵称" label-width="140px">
         <el-input v-model="form.nickname" autocomplete="off" />
       </el-form-item>
@@ -31,9 +53,11 @@ const title = ref("");
 const form = ref({
   username: "",
   password: "",
+  confirmPassword: "",
   nickname: "",
   id: 0
 });
+const type = ref<"create" | "edit">("create");
 const rules = {
   username: [
     { required: true, message: "请输入用户名", trigger: "blur" },
@@ -41,6 +65,10 @@ const rules = {
   ],
   password: [
     { required: true, message: "请输入密码", trigger: "blur" },
+    { min: 6, max: 10, message: "长度在 6 到 10 个字符", trigger: "blur" }
+  ],
+  confirmPassword: [
+    { required: true, message: "请再次输入密码", trigger: "blur" },
     { min: 6, max: 10, message: "长度在 6 到 10 个字符", trigger: "blur" }
   ]
 };
@@ -51,6 +79,7 @@ const handleClose = () => {
 };
 const handleOpen = async (id?: number) => {
   if (id) {
+    type.value = "edit";
     // 编辑
     title.value = "编辑用户";
     const res = await getUserInfo(id);
@@ -59,11 +88,13 @@ const handleOpen = async (id?: number) => {
     form.value.nickname = res.nickname;
     form.value.password = "******";
   } else {
+    type.value = "create";
     // 新增
     form.value = {
       username: "",
       password: "",
       nickname: "",
+      confirmPassword: "",
       id: 0
     };
   }
@@ -79,6 +110,10 @@ const handleSave = async () => {
     ElMessage.success("更新成功");
   } else {
     await formRef.value?.validate();
+    if (form.value.password !== form.value.confirmPassword) {
+      ElMessage.error("两次密码不一致");
+      return;
+    }
     await createUser({
       username: form.value.username,
       password: form.value.password,
