@@ -1,4 +1,7 @@
+import type { ListResponse } from "@/types/api";
+import type { User, UserListQueryParam } from "@/types/user";
 import { http } from "@/utils/http";
+import { apiGet, apiPost } from "@/utils/request";
 
 export type UserResult = {
   code: number;
@@ -45,4 +48,30 @@ export const refreshTokenApi = (data?: object) => {
   return http.request<RefreshTokenResult>("post", "/user/refresh-token", {
     data
   });
+};
+
+/** 用户管理 */
+
+export const getUserList = (params: UserListQueryParam) => {
+  return apiPost<ListResponse<User[]>>("/user/list", params);
+};
+
+export const getUserInfo = (id: number) => {
+  return apiGet<User>(`/user/detail/${id}`);
+};
+
+export const updateUser = (param: { id: number; nickname: string }) => {
+  return apiPost<User>("/user/update", param);
+};
+
+export const deleteUser = (id: number) => {
+  return apiGet<User>(`/user/delete/${id}`);
+};
+
+export const createUser = (param: {
+  username: string;
+  password: string;
+  nickname?: string;
+}) => {
+  return apiPost<User>("/user/create", param);
 };

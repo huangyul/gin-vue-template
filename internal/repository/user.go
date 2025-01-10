@@ -72,13 +72,17 @@ func (u *UserRepositoryImpl) toEntity(user domain.User) dao.User {
 	return dao.User{
 		Username: user.Username,
 		Password: user.Password,
+		Nickname: user.Nickname,
 	}
 }
 
 func (u *UserRepositoryImpl) toDomain(user dao.User) domain.User {
 	return domain.User{
-		ID:       user.Id,
-		Username: user.Username,
-		Password: user.Password,
+		ID:        user.Id,
+		Username:  user.Username,
+		Password:  user.Password,
+		Nickname:  user.Nickname,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 }

@@ -16,10 +16,19 @@ type UserService interface {
 	GetByID(ctx context.Context, id int64) (domain.User, error)
 	Update(ctx context.Context, id int64, nickname string) error
 	DeleteByID(ctx context.Context, id int64) error
+	Create(ctx *gin.Context, username string, password string, nickname string) error
 }
 
 type UserServiceImpl struct {
 	repo repository.UserRepository
+}
+
+func (u *UserServiceImpl) Create(ctx *gin.Context, username string, password string, nickname string) error {
+	passStr, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	return u.repo.CreateByUsername(ctx, domain.User{Username: username, Password: string(passStr), Nickname: nickname})
 }
 
 func (u *UserServiceImpl) GetByID(ctx context.Context, id int64) (domain.User, error) {

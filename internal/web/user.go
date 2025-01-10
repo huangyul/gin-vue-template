@@ -39,9 +39,10 @@ func (h *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug.POST("/register", h.Register)
 	ug.POST("/refresh-token", h.RefreshToken)
 	ug.POST("/list", h.List)
-	ug.GET("/Detail/:id", h.Detail)
+	ug.GET("/detail/:id", h.Detail)
 	ug.GET("/delete/:id", h.Delete)
 	ug.POST("/update", h.Update)
+	ug.POST("/create", h.Create)
 }
 
 func (h *UserHandler) Login(ctx *gin.Context) {
@@ -167,7 +168,7 @@ func (h *UserHandler) List(ctx *gin.Context) {
 	for _, u := range us {
 		users = append(users, dto.UserResp{
 			Username:  u.Username,
-			Nickname:  u.Username,
+			Nickname:  u.Nickname,
 			ID:        u.ID,
 			CreatedAt: u.CreatedAt.Format(time.DateOnly),
 		})
@@ -193,7 +194,7 @@ func (h *UserHandler) Detail(ctx *gin.Context) {
 	}
 	WriteSuccessResponse(ctx, dto.UserResp{
 		Username:  u.Username,
-		Nickname:  u.Username,
+		Nickname:  u.Nickname,
 		ID:        u.ID,
 		CreatedAt: u.CreatedAt.Format(time.DateOnly),
 	})
@@ -225,6 +226,25 @@ func (h *UserHandler) Update(ctx *gin.Context) {
 		return
 	}
 	err := h.svc.Update(ctx, r.ID, r.Nickname)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	WriteSuccess(ctx)
+}
+
+func (h *UserHandler) Create(ctx *gin.Context) {
+	type req struct {
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
+		Nickname string `json:"nickname"`
+	}
+	var r req
+	if err := ctx.ShouldBind(&r); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err := h.svc.Create(ctx, r.Username, r.Password, r.Nickname)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
