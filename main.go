@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "github.com/huangyul/gin-vue-template/internal/pkg/ginx/validator"
 	"github.com/spf13/viper"
 )
 

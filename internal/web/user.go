@@ -1,10 +1,13 @@
 package web
 
 import (
+	"errors"
 	regexp "github.com/dlclark/regexp2"
 	"github.com/gin-gonic/gin"
 	"github.com/huangyul/gin-vue-template/internal/dto"
+	"github.com/huangyul/gin-vue-template/internal/pkg/errno"
 	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/jwt"
+	"github.com/huangyul/gin-vue-template/internal/pkg/ginx/validator"
 	"github.com/huangyul/gin-vue-template/internal/service"
 	"golang.org/x/sync/errgroup"
 	"net/http"
@@ -107,28 +110,32 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 	}
 	var req RegisterRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		WriteErrno(ctx, errno.BadRequest.SetMessage(validator.Translate(err)))
 		return
 	}
 	ok, err := h.passwordRexExp.MatchString(req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		WriteErrno(ctx, errno.InternalServerError.SetMessage(err.Error()))
 		return
 	}
 	if !ok {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Password must be between 6 and 18 digits"})
+		WriteErrno(ctx, errno.BadRequest.SetMessage("密码长度在6-18位之间"))
 		return
 	}
 	if req.Password != req.ConfirmPassword {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "passwords do not match"})
+		WriteErrno(ctx, errno.BadRequest.SetMessage("两次输入的密码不相等"))
 		return
 	}
 	err = h.svc.Register(ctx, req.Username, req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, errno.UsernameConflict) {
+			WriteErrno(ctx, errno.UsernameConflict)
+			return
+		}
+		WriteErrno(ctx, errno.InternalServerError.SetMessage(err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"user": req.Username})
+	WriteSuccess(ctx)
 }
 
 func (h *UserHandler) RefreshToken(ctx *gin.Context) {

@@ -22,6 +22,6 @@ func InitWebHandler(uHdl *web.UserHandler, routerHdl *web.RouterHandler) []web.H
 func InitWebMiddleware(jwtHdl *jwt.Handler) []gin.HandlerFunc {
 	return []gin.HandlerFunc{
 		// login
-		web.NewLoginMiddlewareBuild(jwtHdl).AddWhiteList("/user/login", "/user/refresh-token").Build(),
+		web.NewLoginMiddlewareBuild(jwtHdl).AddWhiteList("/user/login", "/user/refresh-token", "/user/register").Build(),
 	}
 }
