@@ -46,6 +46,7 @@ func (h *UserHandler) RegisterRoutes(server *gin.Engine) {
 	ug.GET("/delete/:id", h.Delete)
 	ug.POST("/update", h.Update)
 	ug.POST("/create", h.Create)
+	ug.GET("/option", h.Option)
 }
 
 func (h *UserHandler) Login(ctx *gin.Context) {
@@ -128,7 +129,7 @@ func (h *UserHandler) Register(ctx *gin.Context) {
 	}
 	err = h.svc.Register(ctx, req.Username, req.Password)
 	if err != nil {
-		if errors.Is(err, errno.UsernameConflict) {
+		if errors.Is(err, errno.UserNotFound) {
 			WriteErrno(ctx, errno.UsernameConflict)
 			return
 		}
@@ -257,4 +258,13 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		return
 	}
 	WriteSuccess(ctx)
+}
+
+func (h *UserHandler) Option(ctx *gin.Context) {
+	res, err := h.svc.GetOptions(ctx)
+	if err != nil {
+		WriteErrno(ctx, errno.BadRequest.SetMessage(err.Error()))
+		return
+	}
+	WriteSuccessResponse(ctx, res)
 }

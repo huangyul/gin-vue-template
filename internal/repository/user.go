@@ -14,10 +14,23 @@ type UserRepository interface {
 	UpdateByID(ctx context.Context, id int64, nickname string) error
 	FindByID(ctx context.Context, id int64) (domain.User, error)
 	DeleteByID(ctx context.Context, id int64) error
+	GetAllUser(ctx context.Context) ([]domain.User, error)
 }
 
 type UserRepositoryImpl struct {
 	dao dao.UserDao
+}
+
+func (u *UserRepositoryImpl) GetAllUser(ctx context.Context) ([]domain.User, error) {
+	users, err := u.dao.GetAllUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]domain.User, len(users))
+	for i, user := range users {
+		result[i] = u.toDomain(user)
+	}
+	return result, nil
 }
 
 func (u *UserRepositoryImpl) UpdateByID(ctx context.Context, id int64, nickname string) error {

@@ -7,6 +7,7 @@ import (
 	"github.com/huangyul/gin-vue-template/internal/dto"
 	"github.com/huangyul/gin-vue-template/internal/repository"
 	"golang.org/x/crypto/bcrypt"
+	"strconv"
 )
 
 type UserService interface {
@@ -17,10 +18,26 @@ type UserService interface {
 	Update(ctx context.Context, id int64, nickname string) error
 	DeleteByID(ctx context.Context, id int64) error
 	Create(ctx *gin.Context, username string, password string, nickname string) error
+	GetOptions(ctx context.Context) ([]dto.QuerySelectOption, error)
 }
 
 type UserServiceImpl struct {
 	repo repository.UserRepository
+}
+
+func (u *UserServiceImpl) GetOptions(ctx context.Context) ([]dto.QuerySelectOption, error) {
+	users, err := u.repo.GetAllUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]dto.QuerySelectOption, len(users))
+	for i, user := range users {
+		result[i] = dto.QuerySelectOption{
+			Label: user.Username,
+			Value: strconv.Itoa(int(user.ID)),
+		}
+	}
+	return result, nil
 }
 
 func (u *UserServiceImpl) Create(ctx *gin.Context, username string, password string, nickname string) error {

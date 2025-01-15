@@ -17,6 +17,10 @@ import (
 	"github.com/huangyul/gin-vue-template/internal/web"
 )
 
+import (
+	_ "github.com/huangyul/gin-vue-template/internal/pkg/ginx/validator"
+)
+
 // Injectors from wire.go:
 
 func InitServer() *gin.Engine {
@@ -28,7 +32,11 @@ func InitServer() *gin.Engine {
 	userService := service.NewUserService(userRepository)
 	userHandler := web.NewUserHandler(userService, handler)
 	routerHandler := web.NewRouterHandler()
-	v2 := ioc.InitWebHandler(userHandler, routerHandler)
+	fileDao := dao.NewFileDao(db)
+	fileRepository := repository.NewFileRepository(fileDao)
+	fileService := service.NewFileService(fileRepository, userService)
+	fileHandler := web.NewFileHandler(fileService)
+	v2 := ioc.InitWebHandler(userHandler, routerHandler, fileHandler)
 	engine := ioc.InitServer(v, v2)
 	return engine
 }
@@ -36,3 +44,5 @@ func InitServer() *gin.Engine {
 // wire.go:
 
 var UserSet = wire.NewSet(jwt.NewHandler, dao.NewUserDao, repository.NewUserRepository, service.NewUserService, web.NewUserHandler)
+
+var FileSet = wire.NewSet(dao.NewFileDao, repository.NewFileRepository, service.NewFileService, web.NewFileHandler)

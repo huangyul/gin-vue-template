@@ -21,12 +21,20 @@ var UserSet = wire.NewSet(
 	web.NewUserHandler,
 )
 
+var FileSet = wire.NewSet(
+	dao.NewFileDao,
+	repository.NewFileRepository,
+	service.NewFileService,
+	web.NewFileHandler,
+)
+
 func InitServer() *gin.Engine {
 	wire.Build(
 		// third party
 		ioc.InitDB,
 
 		UserSet,
+		FileSet,
 
 		web.NewRouterHandler,
 

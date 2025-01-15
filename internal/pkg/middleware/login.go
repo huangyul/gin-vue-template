@@ -1,4 +1,4 @@
-package web
+package middleware
 
 import (
 	"github.com/gin-gonic/gin"
@@ -7,21 +7,21 @@ import (
 	"strings"
 )
 
-type LoginMiddlewareBuild struct {
+type JWTMiddlewareBuild struct {
 	WhiteList []string
 	jwtHdl    *jwt.Handler
 }
 
-func NewLoginMiddlewareBuild(jwtHdl *jwt.Handler) *LoginMiddlewareBuild {
-	return &LoginMiddlewareBuild{jwtHdl: jwtHdl}
+func NewJWTMiddlewareBuild(jwtHdl *jwt.Handler) *JWTMiddlewareBuild {
+	return &JWTMiddlewareBuild{jwtHdl: jwtHdl}
 }
 
-func (l *LoginMiddlewareBuild) AddWhiteList(whiteList ...string) *LoginMiddlewareBuild {
+func (l *JWTMiddlewareBuild) AddWhiteList(whiteList ...string) *JWTMiddlewareBuild {
 	l.WhiteList = append(l.WhiteList, whiteList...)
 	return l
 }
 
-func (l *LoginMiddlewareBuild) Build() gin.HandlerFunc {
+func (l *JWTMiddlewareBuild) Build() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		for _, p := range l.WhiteList {
 			if p == ctx.Request.URL.Path {

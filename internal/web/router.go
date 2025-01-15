@@ -92,6 +92,25 @@ var userRouter = Route{
 	},
 }
 
+var fileRouter = Route{
+	Path: "/file",
+	Meta: Meta{
+		Title: "文件管理",
+		Icon:  "ep:files",
+		Rank:  20,
+	},
+	Children: []Route{
+		{
+			Path: "/file/page/list",
+			Name: "FilePageList",
+			Meta: Meta{
+				Title: "文件管理",
+				Roles: []string{"admin", "common"},
+			},
+		},
+	},
+}
+
 type RouterHandler struct{}
 
 func NewRouterHandler() *RouterHandler {
@@ -105,6 +124,6 @@ func (r *RouterHandler) RegisterRoutes(s *gin.Engine) {
 func (r *RouterHandler) GetRoutes(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"data":    []Route{permissionRouter, userRouter},
+		"data":    []Route{permissionRouter, userRouter, fileRouter},
 	})
 }

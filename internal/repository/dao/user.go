@@ -16,10 +16,17 @@ type UserDao interface {
 	UpdateByID(ctx context.Context, id int64, nickname string) error
 	FindUserById(ctx context.Context, id int64) (User, error)
 	DeleteByID(ctx context.Context, id int64) error
+	GetAllUser(ctx context.Context) ([]User, error)
 }
 
 type UserDaoImpl struct {
 	db *gorm.DB
+}
+
+func (u *UserDaoImpl) GetAllUser(ctx context.Context) ([]User, error) {
+	result := []User{}
+	err := u.db.WithContext(ctx).Find(&result).Error
+	return result, err
 }
 
 func (u *UserDaoImpl) DeleteByID(ctx context.Context, id int64) error {
