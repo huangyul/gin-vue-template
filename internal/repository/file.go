@@ -19,8 +19,19 @@ func (repo *FileRepository) Insert(ctx context.Context, fileName string, userNam
 	return repo.dao.Insert(ctx, fileName, userName, userId, link)
 }
 
-func (repo *FileRepository) Delete(ctx context.Context, id int64, uId int64) (string, error) {
-	return repo.dao.Delete(ctx, id, uId)
+func (repo *FileRepository) Delete(ctx context.Context, id int64, uId int64) (domain.File, error) {
+	f, err := repo.dao.Delete(ctx, id, uId)
+	if err != nil {
+		return domain.File{}, err
+	}
+	return domain.File{
+		Id:         f.Id,
+		FileName:   f.Name,
+		Link:       f.Link,
+		Uploader:   f.Uploader,
+		UploaderId: f.UploaderId,
+		CreateAt:   f.CreatedAt,
+	}, nil
 }
 
 func (repo *FileRepository) List(ctx context.Context, param dto.FileListQueryParam) ([]domain.File, int64, error) {

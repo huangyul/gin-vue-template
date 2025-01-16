@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/huangyul/gin-vue-template/internal/dto"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -57,7 +59,9 @@ func (f *FileHandler) Upload(ctx *gin.Context) {
 		return
 	}
 
-	WriteSuccess(ctx)
+	WriteSuccessResponse(ctx, gin.H{
+		"url": f.fullFilePath(ctx, newFileName),
+	})
 }
 
 func (f *FileHandler) Delete(ctx *gin.Context) {
@@ -68,11 +72,22 @@ func (f *FileHandler) Delete(ctx *gin.Context) {
 		return
 	}
 	uId := ctx.MustGet("userId").(int64)
-	fileUlr, err := f.svc.Delete(ctx, id, uId)
+	file, err := f.svc.Delete(ctx, id, uId)
 	if err != nil {
 		WriteErrno(ctx, errno.BadRequest.SetMessage(err.Error()))
 		return
 	}
+
+	go func() {
+		normalizeLink := filepath.ToSlash(file.Link)
+		fileUrl := strings.TrimPrefix(normalizeLink, "static/")
+		osUrl := filepath.Join(FileBase, fileUrl)
+		er := os.Remove(filepath.Clean(osUrl))
+		if er != nil {
+			fmt.Printf("文件删除失败，文件名：%s, 文件link: %s, 失败原因：%s", file.FileName, file.Link, er.Error())
+		}
+
+	}()
 
 	WriteSuccess(ctx)
 }
@@ -123,6 +138,6 @@ func (f *FileHandler) Option(ctx *gin.Context) {
 	})
 }
 
-func (f *FileHandler) fullFilePath(ctx *gin.Context, link string) string {
-	return ctx.Request.Host
+func (f *FileHandler) fullFilePath(ctx *gin.Context, filename string) string {
+	return "http://" + ctx.Request.Host + "/static/" + filename
 }

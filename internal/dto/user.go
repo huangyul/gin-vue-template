@@ -11,6 +11,7 @@ type UserResp struct {
 	ID        int64  `json:"id"`
 	Nickname  string `json:"nickname"`
 	Username  string `json:"username"`
+	Avatar    string `json:"avatar"`
 	CreatedAt string `json:"created_at"`
 }
 

@@ -177,6 +177,7 @@ func (h *UserHandler) List(ctx *gin.Context) {
 		users = append(users, dto.UserResp{
 			Username:  u.Username,
 			Nickname:  u.Nickname,
+			Avatar:    u.Avatar,
 			ID:        u.ID,
 			CreatedAt: u.CreatedAt.Format(time.DateOnly),
 		})
@@ -246,13 +247,14 @@ func (h *UserHandler) Create(ctx *gin.Context) {
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
 		Nickname string `json:"nickname"`
+		Avatar   string `json:"avatar"`
 	}
 	var r req
 	if err := ctx.ShouldBind(&r); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	err := h.svc.Create(ctx, r.Username, r.Password, r.Nickname)
+	err := h.svc.Create(ctx, r.Username, r.Password, r.Nickname, r.Avatar)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

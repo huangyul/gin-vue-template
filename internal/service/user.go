@@ -17,7 +17,7 @@ type UserService interface {
 	GetByID(ctx context.Context, id int64) (domain.User, error)
 	Update(ctx context.Context, id int64, nickname string) error
 	DeleteByID(ctx context.Context, id int64) error
-	Create(ctx *gin.Context, username string, password string, nickname string) error
+	Create(ctx *gin.Context, username string, password string, nickname string, avatar string) error
 	GetOptions(ctx context.Context) ([]dto.QuerySelectOption, error)
 }
 
@@ -40,12 +40,12 @@ func (u *UserServiceImpl) GetOptions(ctx context.Context) ([]dto.QuerySelectOpti
 	return result, nil
 }
 
-func (u *UserServiceImpl) Create(ctx *gin.Context, username string, password string, nickname string) error {
+func (u *UserServiceImpl) Create(ctx *gin.Context, username string, password string, nickname string, avatar string) error {
 	passStr, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-	return u.repo.CreateByUsername(ctx, domain.User{Username: username, Password: string(passStr), Nickname: nickname})
+	return u.repo.CreateByUsername(ctx, domain.User{Username: username, Password: string(passStr), Nickname: nickname, Avatar: avatar})
 }
 
 func (u *UserServiceImpl) GetByID(ctx context.Context, id int64) (domain.User, error) {

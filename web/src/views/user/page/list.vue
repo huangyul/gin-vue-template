@@ -19,6 +19,18 @@
       <el-table :data="tableData" border style="height: 100%; overflow: auto">
         <el-table-column prop="username" label="账号" />
         <el-table-column prop="nickname" label="昵称" />
+        <el-table-column prop="roles" label="头像">
+          <template #default="{ row }">
+            <el-image
+              v-if="row.avatar"
+              :src="row.avatar"
+              alt="avatar"
+              fit="contain"
+              :preview-src-list="[row.avatar]"
+              class="w-10 h-10 rounded-full"
+            />
+          </template>
+        </el-table-column>
         <el-table-column prop="created_at" label="创建时间" />
         <el-table-column label="操作">
           <template #default="{ row }">

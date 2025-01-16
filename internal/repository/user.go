@@ -83,6 +83,7 @@ func NewUserRepository(dao dao.UserDao) UserRepository {
 
 func (u *UserRepositoryImpl) toEntity(user domain.User) dao.User {
 	return dao.User{
+		Avatar:   user.Avatar,
 		Username: user.Username,
 		Password: user.Password,
 		Nickname: user.Nickname,
@@ -95,6 +96,7 @@ func (u *UserRepositoryImpl) toDomain(user dao.User) domain.User {
 		Username:  user.Username,
 		Password:  user.Password,
 		Nickname:  user.Nickname,
+		Avatar:    user.Avatar,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}

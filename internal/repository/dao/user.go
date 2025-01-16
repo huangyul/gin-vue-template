@@ -87,7 +87,7 @@ func (u *UserDaoImpl) GetList(ctx context.Context, params UserListQueryParam) ([
 		return nil, 0, err
 	}
 	var users []User
-	if err := query.Offset((params.Page - 1) * params.PageSize).Limit(params.PageSize).Find(&users).Error; err != nil {
+	if err := query.Offset((params.Page - 1) * params.PageSize).Limit(params.PageSize).Order("id asc").Find(&users).Error; err != nil {
 		return nil, 0, err
 	}
 	return users, count, nil

@@ -31,13 +31,13 @@ func (dao *FileDao) Insert(ctx context.Context, fileName string, userName string
 	return dao.db.WithContext(ctx).Create(&file).Error
 }
 
-func (dao *FileDao) Delete(ctx context.Context, id int64, uId int64) (string, error) {
+func (dao *FileDao) Delete(ctx context.Context, id int64, uId int64) (File, error) {
 	var file File
 	res := dao.db.WithContext(ctx).Model(&File{}).First(&file).Delete("id = ? AND uploader_id = ?", id, uId).RowsAffected
 	if res == 0 {
-		return "", errno.FileNotPermisson
+		return file, errno.FileNotPermission
 	}
-	return file.Link, nil
+	return file, nil
 }
 
 func (dao *FileDao) List(ctx context.Context, param dto.FileListQueryParam) ([]File, int64, error) {

@@ -29,7 +29,7 @@ func (svc *FileService) Save(ctx context.Context, file *multipart.FileHeader, li
 	return svc.repo.Insert(ctx, file.Filename, user.Username, user.ID, link)
 }
 
-func (svc *FileService) Delete(ctx context.Context, id int64, uId int64) (string, error) {
+func (svc *FileService) Delete(ctx context.Context, id int64, uId int64) (domain.File, error) {
 	return svc.repo.Delete(ctx, id, uId)
 }
 

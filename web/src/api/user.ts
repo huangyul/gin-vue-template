@@ -72,6 +72,7 @@ export const createUser = (param: {
   username: string;
   password: string;
   nickname?: string;
+  avatar?: string;
 }) => {
   return apiPost<User>("/user/create", param);
 };

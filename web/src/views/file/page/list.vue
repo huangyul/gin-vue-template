@@ -2,8 +2,8 @@
   <div class="flex flex-col h-full">
     <el-card class="mb-2">
       <el-upload
-        ref="uploadRef"
         action="/api/file/upload"
+        accept="image/png, image/jpeg"
         :show-file-list="false"
         :on-success="handleUpload"
         :headers="{
@@ -11,7 +11,7 @@
         }"
       >
         <template #trigger>
-          <el-button type="primary">select file</el-button>
+          <el-button type="primary">上传文件</el-button>
         </template>
         <template #tip>
           <div class="el-upload__tip">
@@ -47,7 +47,7 @@
         <el-table-column label="操作">
           <template #default="{ row }">
             <el-button size="small" type="danger" @click="handleDelete(row.id)">
-              Delete
+              删除
             </el-button>
           </template>
         </el-table-column>
@@ -70,13 +70,11 @@
 </template>
 
 <script setup lang="ts">
-import { deleteUser, getUserList } from "@/api/user";
-import { deleteFileById, getList, getOptions, uploadFile } from "@/api/file";
-import type { File } from "@/types/file";
+import { deleteFileById, getList, getOptions } from "@/api/file";
 import { onMounted, ref } from "vue";
 import { ElMessage } from "element-plus";
 import { SelectOptions } from "@/types/common";
-import type { UploadInstance, UploadRawFile } from "element-plus";
+import type { UploadInstance } from "element-plus";
 import { getToken } from "@/utils/auth";
 const currentPage = ref(1);
 const pageSize = ref(10);
@@ -133,6 +131,7 @@ const uploadRef = ref<UploadInstance>();
 
 const handleUpload = () => {
   ElMessage.success("上传成功");
+  handleSearch();
 };
 
 const init = async () => {

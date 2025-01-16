@@ -32,6 +32,20 @@
       <el-form-item label="昵称" label-width="140px">
         <el-input v-model="form.nickname" autocomplete="off" />
       </el-form-item>
+      <el-form-item label="头像" label-width="140px">
+        <el-upload
+          action="/api/file/upload"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+          :headers="{
+            Authorization: `Bearer ${getToken().accessToken}`
+          }"
+        >
+          <img v-if="form.avatar" :src="form.avatar" class="avatar" />
+          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+        </el-upload>
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -44,8 +58,11 @@
 
 <script setup lang="ts">
 import { createUser, getUserInfo, updateUser } from "@/api/user";
-import { ElMessage, type FormInstance } from "element-plus";
+import { ElMessage, type FormInstance, type UploadProps } from "element-plus";
 import { ref } from "vue";
+import { getToken } from "@/utils/auth";
+import { Plus } from "@element-plus/icons-vue";
+import type { ApiResponse } from "@/types/api";
 
 const emits = defineEmits(["refresh"]);
 const dialogVisible = ref(false);
@@ -55,6 +72,7 @@ const form = ref({
   password: "",
   confirmPassword: "",
   nickname: "",
+  avatar: "",
   id: 0
 });
 const type = ref<"create" | "edit">("create");
@@ -95,6 +113,7 @@ const handleOpen = async (id?: number) => {
       password: "",
       nickname: "",
       confirmPassword: "",
+      avatar: "",
       id: 0
     };
   }
@@ -117,7 +136,8 @@ const handleSave = async () => {
     await createUser({
       username: form.value.username,
       password: form.value.password,
-      nickname: form.value.nickname
+      nickname: form.value.nickname,
+      avatar: form.value.avatar
     });
     ElMessage.success("创建成功");
   }
@@ -125,8 +145,57 @@ const handleSave = async () => {
   handleClose();
 };
 
+const imageUrl = ref("");
+
+const handleAvatarSuccess: UploadProps["onSuccess"] = (
+  response: ApiResponse<{ url: string }>
+) => {
+  form.value.avatar = response.data.url;
+};
+
+const beforeAvatarUpload: UploadProps["beforeUpload"] = rawFile => {
+  const validTypes = ["image/jpeg", "image/png"];
+  if (!validTypes.includes(rawFile.type)) {
+    ElMessage.error("头像图片必须是 JPG 或 PNG 格式！");
+    return false;
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error("头像图片大小不能超过 2MB！");
+    return false;
+  }
+  return true;
+};
+
 defineExpose({
   handleOpen,
   handleClose
 });
 </script>
+
+<style scoped lang="scss">
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
+
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
