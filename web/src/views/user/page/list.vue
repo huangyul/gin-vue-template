@@ -26,7 +26,6 @@
               :src="row.avatar"
               alt="avatar"
               fit="contain"
-              :preview-src-list="[row.avatar]"
               class="w-10 h-10 rounded-full"
             />
           </template>
@@ -35,10 +34,10 @@
         <el-table-column label="操作">
           <template #default="{ row }">
             <el-button size="small" @click="handleEdit(row.id)">
-              Edit
+              编辑
             </el-button>
             <el-button size="small" type="danger" @click="handleDelete(row.id)">
-              Delete
+              删除
             </el-button>
           </template>
         </el-table-column>
