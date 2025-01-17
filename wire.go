@@ -32,6 +32,7 @@ func InitServer() *gin.Engine {
 	wire.Build(
 		// third party
 		ioc.InitDB,
+		ioc.InitRedis,
 
 		UserSet,
 		FileSet,
