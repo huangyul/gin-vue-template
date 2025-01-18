@@ -25,7 +25,8 @@ import (
 
 func InitServer() *gin.Engine {
 	handler := jwt.NewHandler()
-	v := ioc.InitWebMiddleware(handler)
+	cmdable := ioc.InitRedis()
+	v := ioc.InitWebMiddleware(handler, cmdable)
 	db := ioc.InitDB()
 	userDao := dao.NewUserDao(db)
 	userRepository := repository.NewUserRepository(userDao)

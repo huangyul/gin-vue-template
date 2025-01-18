@@ -10,11 +10,12 @@ local min = now - window
 
 redis.call('ZREMRANGEBYSCORE', key, '-inf', min)
 
-local cnt = redis.call('ZCOUNT', '-inf', '+inf')
+local cnt = redis.call('ZCOUNT',key, '-inf', '+inf')
 
 if cnt >= thresholds then
     return "true"
 else
     redis.call('ZADD', key, now, now)
     redis.call('PEXPIRE', key, window)
+    return "false"
 end

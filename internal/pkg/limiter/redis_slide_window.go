@@ -22,6 +22,6 @@ func NewRedisSlideWindow(client redis.Cmdable, interval time.Duration, rate int)
 	return &RedisSlideWindow{client: client, interval: interval, rate: rate}
 }
 
-func (r *RedisSlideWindow) limit(ctx context.Context, key string) (bool, error) {
+func (r *RedisSlideWindow) Limit(ctx context.Context, key string) (bool, error) {
 	return r.client.Eval(ctx, luaScript, []string{key}, r.interval.Milliseconds(), r.rate, time.Now().UnixMilli()).Bool()
 }
