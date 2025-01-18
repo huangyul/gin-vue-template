@@ -202,6 +202,7 @@ func (h *UserHandler) Detail(ctx *gin.Context) {
 		return
 	}
 	WriteSuccessResponse(ctx, dto.UserResp{
+		Avatar:    u.Avatar,
 		Username:  u.Username,
 		Nickname:  u.Nickname,
 		ID:        u.ID,

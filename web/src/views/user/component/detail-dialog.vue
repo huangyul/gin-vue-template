@@ -105,6 +105,7 @@ const handleOpen = async (id?: number) => {
     form.value.username = res.username;
     form.value.nickname = res.nickname;
     form.value.password = "******";
+    form.value.avatar = res.avatar;
   } else {
     type.value = "create";
     // 新增
